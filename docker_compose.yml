@@ -4,15 +4,16 @@ services:
 
   wordpress:
     image: wordpress
+    container_name: wordpress
     restart: always
     ports:
       - 80:80
       - 443:443
     environment:
-      WORDPRESS_DB_HOST: exampledbhost
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledbname
+      WORDPRESS_DB_HOST: DBHOST
+      WORDPRESS_DB_USER: DBUSER
+      WORDPRESS_DB_PASSWORD: DBPASSWORD
+      WORDPRESS_DB_NAME: DBNAME
       WORDPRESS_CONFIG_EXTRA: |
       define( 'AS3CF_SETTINGS', serialize( array(
     // Storage Provider ('aws', 'do', 'gcp')
@@ -22,7 +23,22 @@ services:
     // Secret Access Key for Storage Providers (aws and do only, replace '*')
     'secret-access-key' => 'SECRETACCESSKEY',
     // Bucket to upload files to
-    'bucket' => 'mybucket',
+    'bucket' => 'MYBUCKET',
       )));
     volumes:
       - wordpress:/var/www/html
+
+  wpcli:
+    image: wpcli
+    build: ./
+    container_name: wp_cli
+    entrypoint:  sh -c "/wait && chmod -R 777 /var/www/html/wp-content/ && make -f /scripts/Makefile"
+    depends_on:
+      - wordpress
+    environment:
+      - WAIT_HOSTS=DBHOST:3306, wordpress:80
+      - WAIT_BEFORE_HOSTS=30
+      - WAIT_AFTER_HOSTS=15
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
