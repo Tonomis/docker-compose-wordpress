@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      WORDPRESS_DB_HOST: exampledbhost
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledbname
+      WORDPRESS_CONFIG_EXTRA: |
+      define( 'AS3CF_SETTINGS', serialize( array(
+    // Storage Provider ('aws', 'do', 'gcp')
+    'provider' => 'aws',
+    // Access Key ID for Storage Provider (aws and do only, replace '*')
+    'access-key-id' => 'ACCESSKEY',
+    // Secret Access Key for Storage Providers (aws and do only, replace '*')
+    'secret-access-key' => 'SECRETACCESSKEY',
+    // Bucket to upload files to
+    'bucket' => 'mybucket',
+      )));
+    volumes:
+      - wordpress:/var/www/html
